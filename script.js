@@ -565,6 +565,10 @@ if (envelope) {
          */
         setTimeout(() => {
 
+            if (envelopeWrapper) {
+                envelopeWrapper.style.display = "none";
+            }
+
             if (shayariWrapper) {
                 shayariWrapper.classList.add("visible");
             }
@@ -741,6 +745,13 @@ if (shayariContinueButton && finalScreen) {
                 behavior: "instant"
             });
 
+            /* Confetti burst when the birthday title reveals */
+            setTimeout(() => {
+                if (finalScreen && finalScreen.classList.contains("active")) {
+                    createFinalConfetti();
+                }
+            }, 3900);
+
         }, 850);
     });
 }
@@ -830,22 +841,106 @@ function createFinalConfetti() {
         }, 4000);
     }
 }
+/* =====================================================
+   BACKGROUND MUSIC
+   ===================================================== */
+
+const backgroundMusic = document.getElementById("backgroundMusic");
+const musicToggle = document.getElementById("musicToggle");
+
+let musicStarted = false;
 
 
 /* =====================================================
-   START CONFETTI AFTER BIRTHDAY REVEAL
+   START MUSIC
    ===================================================== */
 
-if (birthdayReveal) {
+function startBackgroundMusic() {
 
-    setTimeout(() => {
+    if (!backgroundMusic || musicStarted) return;
 
-        if (
-            finalScreen &&
-            finalScreen.classList.contains("active")
-        ) {
-            createFinalConfetti();
-        }
+    backgroundMusic.volume = 0.18;
 
-    }, 2800);
+    const playPromise = backgroundMusic.play();
+
+    if (playPromise !== undefined) {
+
+        playPromise
+            .then(() => {
+
+                musicStarted = true;
+
+                if (musicToggle) {
+                    musicToggle.classList.add("playing");
+                    musicToggle.textContent = "🎵";
+                }
+
+            })
+            .catch(() => {
+
+                // Browser blocked autoplay.
+                // We will start immediately on first interaction.
+
+            });
+    }
 }
+
+
+/* =====================================================
+   TRY AUTOPLAY IMMEDIATELY
+   ===================================================== */
+
+startBackgroundMusic();
+
+
+/* =====================================================
+   FALLBACK — FIRST USER INTERACTION
+   ===================================================== */
+
+function startMusicOnInteraction() {
+
+    if (!musicStarted) {
+        startBackgroundMusic();
+    }
+}
+
+document.addEventListener(
+    "pointerdown",
+    startMusicOnInteraction,
+    { once: true }
+);
+
+
+/* =====================================================
+   PLAY / PAUSE BUTTON
+   ===================================================== */
+
+if (musicToggle && backgroundMusic) {
+
+    musicToggle.addEventListener("click", (event) => {
+
+        event.stopPropagation();
+
+        if (backgroundMusic.paused) {
+
+            backgroundMusic.play()
+                .then(() => {
+
+                    musicStarted = true;
+
+                    musicToggle.classList.add("playing");
+                    musicToggle.textContent = "🎵";
+
+                })
+                .catch(() => {});
+
+        } else {
+
+            backgroundMusic.pause();
+
+            musicToggle.classList.remove("playing");
+            musicToggle.textContent = "🔇";
+        }
+    });
+}
+
