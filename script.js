@@ -897,7 +897,16 @@ startBackgroundMusic();
    FALLBACK — FIRST USER INTERACTION
    ===================================================== */
 
-function startMusicOnInteraction() {
+function startMusicOnInteraction(event) {
+
+    // Agar first interaction music button par hi hua hai,
+    // to document listener music ko automatically start na kare.
+    if (
+        musicToggle &&
+        event.target.closest("#musicToggle")
+    ) {
+        return;
+    }
 
     if (!musicStarted) {
         startBackgroundMusic();
